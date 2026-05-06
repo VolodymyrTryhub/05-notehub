@@ -1,3 +1,29 @@
-export default function NoteList() {
-  return <ul>NoteList</ul>;
+import css from "./NoteList.module.css";
+import type { Note } from "../../types/note";
+
+interface NoteListProps {
+  notes: Note[];
+}
+
+export default function NoteList({ notes }: NoteListProps) {
+  return (
+    <ul className={css.list}>
+      {notes.map((note) => (
+        <li key={note.id} className={css.listItem}>
+          <h2 className={css.title}>{note.title}</h2>
+
+          <p className={css.content}>{note.content}</p>
+
+          <div className={css.footer}>
+            <span className={css.tag}>
+              {/* якщо є tag — показуй, якщо ні — просто текст */}
+              {note.tag ?? "Note"}
+            </span>
+
+            <button className={css.button}>Delete</button>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
 }
