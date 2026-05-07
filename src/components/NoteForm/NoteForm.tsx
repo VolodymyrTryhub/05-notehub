@@ -1,46 +1,75 @@
 import css from "./NoteForm.module.css";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
-export default function NoteForm() {
+interface NoteFormProps {
+  onClose: () => void;
+}
+
+const validationSchema = Yup.object({
+  title: Yup.string().min(3).max(50).required("Required"),
+  content: Yup.string().max(500),
+  tag: Yup.string()
+    .oneOf(["Todo", "Work", "Personal", "Meeting", "Shopping"])
+    .required("Required"),
+});
+
+export default function NoteForm({ onClose }: NoteFormProps) {
   return (
-    <form className={css.form}>
-      {/* Title */}
-      <div className={css.formGroup}>
-        <label>
-          Title
-          <input type="text" className={css.input} name="title" />
-        </label>
-      </div>
+    <Formik
+      initialValues={{
+        title: "",
+        content: "",
+        tag: "Todo",
+      }}
+      validationSchema={validationSchema}
+      onSubmit={(values) => {
+        console.log(values);
+        onClose();
+      }}
+    >
+      <Form className={css.form}>
+        {/* Title */}
+        <div className={css.formGroup}>
+          <label htmlFor="title">Title</label>
+          <Field id="title" name="title" className={css.input} />
+          <ErrorMessage name="title" component="span" className={css.error} />
+        </div>
 
-      {/* Content */}
-      <div className={css.formGroup}>
-        <label>
-          Content
-          <textarea className={css.textarea} name="content" rows={4} />
-        </label>
-      </div>
+        <div className={css.formGroup}>
+          <label htmlFor="content">Content</label>
+          <Field
+            as="textarea"
+            id="content"
+            name="content"
+            rows={8}
+            className={css.textarea}
+          />
+          <ErrorMessage name="content" component="span" className={css.error} />
+        </div>
 
-      {/* Tag (поки просто select) */}
-      <div className={css.formGroup}>
-        <label>
-          Tag
-          <select className={css.select} name="tag">
-            <option value="todo">Todo</option>
-            <option value="work">Work</option>
-            <option value="personal">Personal</option>
-          </select>
-        </label>
-      </div>
+        <div className={css.formGroup}>
+          <label htmlFor="tag">Tag</label>
+          <Field as="select" id="tag" name="tag" className={css.select}>
+            <option value="Todo">Todo</option>
+            <option value="Work">Work</option>
+            <option value="Personal">Personal</option>
+            <option value="Meeting">Meeting</option>
+            <option value="Shopping">Shopping</option>
+          </Field>
+          <ErrorMessage name="tag" component="span" className={css.error} />
+        </div>
 
-      {/* Buttons */}
-      <div className={css.actions}>
-        <button type="button" className={css.cancelButton}>
-          Cancel
-        </button>
+        <div className={css.actions}>
+          <button type="button" className={css.cancelButton} onClick={onClose}>
+            Cancel
+          </button>
 
-        <button type="submit" className={css.submitButton}>
-          Create
-        </button>
-      </div>
-    </form>
+          <button type="submit" className={css.submitButton}>
+            Create note
+          </button>
+        </div>
+      </Form>
+    </Formik>
   );
 }
