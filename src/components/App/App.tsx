@@ -1,9 +1,11 @@
 import css from "./App.module.css";
 import { useState } from "react";
-import { useDebouncedCallback } from "use-debounce";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { fetchNotes, deleteNote } from "../../services/noteService";
+import { useDebouncedCallback } from "use-debounce";
+
+import { useQuery } from "@tanstack/react-query";
+
+import { fetchNotes } from "../../services/noteService";
 
 import SearchBox from "../SearchBox/SearchBox";
 import Pagination from "../Pagination/Pagination";
@@ -13,12 +15,12 @@ import NoteForm from "../NoteForm/NoteForm";
 
 const PER_PAGE = 12;
 
-export default function App() {
+function App() {
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const queryClient = useQueryClient();
+  const [search, setSearch] = useState("");
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSearch = useDebouncedCallback((value: string) => {
     setSearch(value);
@@ -27,24 +29,19 @@ export default function App() {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["notes", page, search],
+
     queryFn: () =>
       fetchNotes({
         page,
         search,
         perPage: PER_PAGE,
       }),
-  });
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteNote,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["notes"],
-      });
-    },
+    placeholderData: (previousData) => previousData,
   });
 
   const notes = data?.notes ?? [];
+
   const totalPages = data?.totalPages ?? 1;
 
   return (
@@ -69,9 +66,7 @@ export default function App() {
 
       {isError && <p>Error loading notes...</p>}
 
-      {notes.length > 0 && (
-        <NoteList notes={notes} onDelete={(id) => deleteMutation.mutate(id)} />
-      )}
+      {notes.length > 0 && <NoteList notes={notes} />}
 
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
@@ -81,3 +76,5 @@ export default function App() {
     </div>
   );
 }
+
+export default App;

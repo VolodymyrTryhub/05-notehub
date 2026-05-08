@@ -1,29 +1,35 @@
+import type { ComponentType } from "react";
+import ReactPaginateModule from "react-paginate";
+import type { ReactPaginateProps } from "react-paginate";
+
 import css from "./Pagination.module.css";
+
+type ModuleWithDefault<T> = {
+  default: T;
+};
+
+const ReactPaginate = (
+  ReactPaginateModule as unknown as ModuleWithDefault<
+    ComponentType<ReactPaginateProps>
+  >
+).default;
 
 interface PaginationProps {
   page: number;
   totalPages: number;
-  onPageChange: (page: number) => void;
+  onPageChange: (selectedPage: number) => void;
 }
 
-export default function Pagination({
-  page,
-  totalPages,
-  onPageChange,
-}: PaginationProps) {
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-
+function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
   return (
-    <ul className={css.pagination}>
-      {pages.map((p) => (
-        <li
-          key={p}
-          className={p === page ? css.active : ""}
-          onClick={() => onPageChange(p)}
-        >
-          <a href="#">{p}</a>
-        </li>
-      ))}
-    </ul>
+    <ReactPaginate
+      pageCount={totalPages}
+      forcePage={page - 1}
+      onPageChange={({ selected }) => onPageChange(selected + 1)}
+      containerClassName={css.pagination}
+      activeClassName={css.active}
+    />
   );
 }
+
+export default Pagination;
